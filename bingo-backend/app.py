@@ -6,7 +6,9 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-UPLOAD_FOLDER = 'uploads/'
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 bingo_elements = [
@@ -189,7 +191,7 @@ bingo_elements = [
 
 
 def allowed_file(filename):
-    return '.' in filename
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/api/bingo', methods=['GET'])
 def get_bingo_elements():
@@ -206,24 +208,28 @@ def update_bingo_element(id):
     return jsonify({'error': 'Element not found'}), 404
 
 @app.route('/api/upload', methods=['POST'])
-def upload_image():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+def upload_file():
+    try:
+        username = request.form['username']
+        if 'file' not in request.files:
+            return jsonify({"error": "No file part"}), 400
         
-        file.save(file_path)
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+        
+        if file:
+            upload_folder = f'uploads/{username}'
+            os.makedirs(upload_folder, exist_ok=True)
+            
+            file_path = os.path.join(upload_folder, file.filename)
+            file.save(file_path)
+            return jsonify({"message": "File uploaded successfully"}), 200
+        else:
+            return jsonify({"error": "No file received"}), 400
+    except Exception as e:
+        return jsonify({"error": f"Error: {str(e)}"}), 500
 
-        
-        return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
-    else:
-        return jsonify({'error': 'No valid file provided'}), 400
 
 if __name__ == '__main__':
     if not os.path.exists(UPLOAD_FOLDER):
