@@ -31,19 +31,9 @@ function App() {
     }
   };
 
-  const deleteBingoElement = async (id) => {
-    try {
-      await axios.delete(`${apiUrl}/${id}`);
-      fetchBingoElements();
-    } catch (error) {
-      console.error("Error deleting bingo element:", error);
-    }
-  };
-
   return (
     <div>
       <h1>Bingo Admin Panel</h1>
-      {}
       {editingElement && (
         <BingoElementForm
           onSubmit={updateBingoElement}
@@ -53,7 +43,6 @@ function App() {
       )}
       <BingoList
         bingoElements={bingoElements}
-        onDelete={deleteBingoElement}
         onEdit={setEditingElement}
       />
     </div>

@@ -197,11 +197,5 @@ def update_bingo_element(id):
             return jsonify(element)
     return jsonify({'error': 'Element not found'}), 404
 
-@app.route('/api/bingo/<int:id>', methods=['DELETE'])
-def delete_bingo_element(id):
-    global bingo_elements
-    bingo_elements = [e for e in bingo_elements if e['id'] != id]
-    return jsonify({'message': 'Element deleted'}), 200
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -1,19 +1,16 @@
 import React from 'react';
 
-function BingoList({ bingoElements, onDelete, onEdit }) {
+function BingoList({ bingoElements, onEdit }) {
   return (
-    <div>
-      <h2>Bingo Elements</h2>
-      <ul>
-        {bingoElements.map((element) => (
-          <li key={element.id}>
-            <span>{element.name} - {element.description}</span>
-            <button onClick={() => onEdit(element)}>Edit</button>
-            <button onClick={() => onDelete(element.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ul>
+      {bingoElements.map((element) => (
+        <li key={element.id}>
+          <h3>{element.name}</h3>
+          <p>{element.description}</p>
+          <button onClick={() => onEdit(element)}>Edit</button>
+        </li>
+      ))}
+    </ul>
   );
 }
 
