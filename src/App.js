@@ -3,7 +3,7 @@ import axios from 'axios';
 import BingoList from './components/BingoList';
 import BingoElementForm from './components/BingoElementForm';
 
-const apiUrl = 'http://bingo.waltervanderbroek.nl/api/bingo';
+const apiUrl = 'http://bingo.waltervanderbroek.nl:5000/api/bingo';
 
 function App() {
   const [bingoElements, setBingoElements] = useState([]);
