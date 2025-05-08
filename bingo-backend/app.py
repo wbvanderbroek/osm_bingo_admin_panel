@@ -1,8 +1,13 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+UPLOAD_FOLDER = 'uploads/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 bingo_elements = [
     {
@@ -183,6 +188,9 @@ bingo_elements = [
 ]
 
 
+def allowed_file(filename):
+    return '.' in filename
+
 @app.route('/api/bingo', methods=['GET'])
 def get_bingo_elements():
     return jsonify(bingo_elements)
@@ -197,5 +205,27 @@ def update_bingo_element(id):
             return jsonify(element)
     return jsonify({'error': 'Element not found'}), 404
 
+@app.route('/api/upload', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        file.save(file_path)
+
+        
+        return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
+    else:
+        return jsonify({'error': 'No valid file provided'}), 400
+
 if __name__ == '__main__':
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
     app.run(host='0.0.0.0', port=5000, debug=True)
